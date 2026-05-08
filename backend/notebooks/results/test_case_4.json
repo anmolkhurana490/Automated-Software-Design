@@ -1,0 +1,79 @@
+{
+    "requirements": {
+        "problem_statement": "Connect customers with home service providers through a real-time, on-demand platform.",
+        "target_users": [
+            "Homeowners/Customers",
+            "Independent service professionals/Contractors"
+        ],
+        "core_features": [
+            "Real-time service provider matching",
+            "GPS-based tracking of service providers",
+            "In-app payment processing",
+            "Rating and review system",
+            "Service booking and scheduling management"
+        ],
+        "user_actions": [
+            "Request a service",
+            "Accept/Reject service request",
+            "Track provider location",
+            "Process payments",
+            "Rate service experience"
+        ],
+        "entities": [
+            "Customer",
+            "Service Provider",
+            "Admin"
+        ],
+        "scale_hint": "",
+        "domain": "On-demand home services marketplace"
+    },
+    "constraints": {
+        "scale": "High scale (global/regional service marketplace)",
+        "latency": "Low latency (real-time matching and tracking)",
+        "availability": "High availability required (similar to Uber)",
+        "consistency": "",
+        "timeline": "",
+        "budget": "",
+        "team_size": "",
+        "security": ""
+    },
+    "unknowns": [
+        {
+            "field": "geographic_coverage",
+            "input_type": "string"
+        },
+        {
+            "field": "service_categories",
+            "input_type": "list"
+        },
+        {
+            "field": "regulatory_requirements",
+            "input_type": "list"
+        },
+        {
+            "field": "scale_hint",
+            "input_type": "string"
+        },
+        {
+            "field": "consistency",
+            "input_type": "string"
+        },
+        {
+            "field": "timeline",
+            "input_type": "string"
+        },
+        {
+            "field": "budget",
+            "input_type": "string"
+        },
+        {
+            "field": "team_size",
+            "input_type": "string"
+        },
+        {
+            "field": "security",
+            "input_type": "string"
+        }
+    ],
+    "clarified_answers": {}
+}

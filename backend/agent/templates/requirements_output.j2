@@ -1,0 +1,38 @@
+## Requirements
+
+### Problem Statement
+{{ requirements.problem_statement | default('') }}
+
+### Target Users
+{% for user in requirements.target_users | default([]) %}
+- {{ user }}
+{% else %}
+- N/A
+{% endfor %}
+
+### Core Features
+{% for feature in requirements.core_features | default([]) %}
+- {{ feature }}
+{% else %}
+- N/A
+{% endfor %}
+
+### User Actions
+{% for action in requirements.user_actions | default([]) %}
+- {{ action }}
+{% else %}
+- N/A
+{% endfor %}
+
+### Entities
+{% for entity in requirements.entities | default([]) %}
+- {{ entity }}
+{% else %}
+- N/A
+{% endfor %}
+
+### Scale Hint
+{{ requirements.scale_hint | default('') }}
+
+### Domain
+{{ requirements.domain | default('') }}

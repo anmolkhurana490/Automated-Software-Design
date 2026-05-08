@@ -1,0 +1,34 @@
+## Tech Stack
+
+**Frontend**
+- Language: {{ tech_stack.frontend.language | default('') }}
+- Framework: {{ tech_stack.frontend.framework | default('') }}
+- Reasoning: {{ tech_stack.frontend.reasoning | default('') }}
+
+**Backend**
+- Language: {{ tech_stack.backend.language | default('') }}
+- Framework: {{ tech_stack.backend.framework | default('') }}
+- API Style: {{ tech_stack.backend.api_style | default('') }}
+- Reasoning: {{ tech_stack.backend.reasoning | default('') }}
+
+**Database**
+- Type: {{ tech_stack.database.type | default('') }}
+- Name: {{ tech_stack.database.name | default('') }}
+- ORM: {{ tech_stack.database.orm | default('') }}
+- Reasoning: {{ tech_stack.database.reasoning | default('') }}
+
+**Infrastructure**
+- Provider: {{ tech_stack.infra.provider | default('') }}
+- Services:
+{% for service in tech_stack.infra.services | default([]) %}
+  - {{ service }}
+{% else %}
+  - N/A
+{% endfor %}
+- Reasoning: {{ tech_stack.infra.reasoning | default('') }}
+
+**Overall Reasoning**
+{{ tech_stack.overall_reasoning | default('') }}
+
+**Confidence**
+{{ tech_stack.confidence | default(0.0) }}

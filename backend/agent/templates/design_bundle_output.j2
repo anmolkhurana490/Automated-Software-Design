@@ -1,0 +1,70 @@
+## Design Bundle
+
+### Services
+{% for svc in design_bundle.services.services | default([]) %}
+- Name: {{ svc.name | default('') }}
+  - Responsibility: {{ svc.responsibility | default('') }}
+  - Owned Data:
+{% for item in svc.owned_data | default([]) %}
+    - {{ item }}
+{% else %}
+    - N/A
+{% endfor %}
+  - Dependencies:
+{% for dep in svc.dependencies | default([]) %}
+    - {{ dep }}
+{% else %}
+    - None
+{% endfor %}
+  - Key Patterns: {{ svc.key_patterns | default('') }}
+{% else %}
+- N/A
+{% endfor %}
+- Reasoning: {{ design_bundle.services.reasoning | default('') }}
+- Confidence: {{ design_bundle.services.confidence | default(0.0) }}
+
+### Database Schema
+{% for table in design_bundle.database_schema.tables | default([]) %}
+- Name: {{ table.name | default('') }}
+  - Description: {{ table.desciption | default('') }}
+  - Fields:
+{% for field in table.fields | default([]) %}
+    - {{ field }}
+{% else %}
+    - N/A
+{% endfor %}
+  - Relations:
+{% for relation in table.relations | default([]) %}
+    - {{ relation }}
+{% else %}
+    - None
+{% endfor %}
+{% else %}
+- N/A
+{% endfor %}
+- Reasoning: {{ design_bundle.database_schema.reasoning | default('') }}
+- Confidence: {{ design_bundle.database_schema.confidence | default(0.0) }}
+
+### API Endpoints
+{% for api in design_bundle.api_endpoints.api_design | default([]) %}
+- Name: {{ api.name | default('') }}
+  - Purpose: {{ api.purpose | default('') }}
+  - Base Route: {{ api.base_route | default('') }}
+{% else %}
+- N/A
+{% endfor %}
+- Frontend Notes: {{ design_bundle.api_endpoints.frontend_notes | default('') }}
+- Reasoning: {{ design_bundle.api_endpoints.reasoning | default('') }}
+- Confidence: {{ design_bundle.api_endpoints.confidence | default(0.0) }}
+
+### Infrastructure
+- Cloud: {{ design_bundle.infrastructure.cloud | default('') }}
+- Services:
+{% for service in design_bundle.infrastructure.services | default([]) %}
+  - {{ service }}
+{% else %}
+  - N/A
+{% endfor %}
+- Deployment: {{ design_bundle.infrastructure.deployment | default('') }}
+- Reasoning: {{ design_bundle.infrastructure.reasoning | default('') }}
+- Confidence: {{ design_bundle.infrastructure.confidence | default(0.0) }}

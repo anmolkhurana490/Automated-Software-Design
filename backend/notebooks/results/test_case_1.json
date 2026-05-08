@@ -1,0 +1,777 @@
+{
+    "requirements": {
+        "problem_statement": "Connect customers with local service providers for plumbing, electrical, and cleaning tasks in an on-demand, Uber-like model.",
+        "target_users": [
+            "Homeowners/Renters",
+            "Service Professionals"
+        ],
+        "core_features": [
+            "Provider-customer matching engine",
+            "Real-time tracking of service professionals",
+            "In-app secure payment processing",
+            "Service rating and review system",
+            "Provider verification and onboarding workflow"
+        ],
+        "user_actions": [
+            "Search for services",
+            "Book service appointments",
+            "Track professional location",
+            "Make payments",
+            "Rate service quality"
+        ],
+        "entities": [
+            "Customer",
+            "Service Provider (Plumber, Electrician, Cleaner)",
+            "Platform Administrator"
+        ],
+        "scale_hint": "Starting in major metropolitan areas in India",
+        "domain": "On-demand home services platform"
+    },
+    "constraints": {
+        "scale": "",
+        "latency": "",
+        "availability": "",
+        "consistency": "",
+        "timeline": "3 months for MVP, 6 months for full launch",
+        "budget": "$500 for first 6 months",
+        "team_size": "",
+        "security": ""
+    },
+    "unknowns": [],
+    "clarified_answers": {},
+    "user_input": "Build a platform like Uber but for home services",
+    "architecture": {
+        "pattern": "microservices",
+        "modules": [
+            "Mobile App (Customer)",
+            "Mobile App (Provider)",
+            "Admin Web Portal",
+            "Matching Engine (Geospatial)",
+            "Real-time Tracking Service (WebSockets)",
+            "Payment Gateway Integration",
+            "User & Provider Management Service",
+            "Booking & Scheduling Service",
+            "Review & Rating Service",
+            "Notification Service"
+        ],
+        "reasoning": "A microservices architecture is chosen to allow independent scaling of the real-time tracking, matching, and payment modules, which is critical for an on-demand service model. This also supports the rapid feature delivery required for the 3-6 month timeline. Monolithic architecture was rejected due to the need for independent deployment of real-time components and the projected growth in metropolitan markets.",
+        "confidence": 0.9
+    },
+    "arch_approved": true,
+    "arch_changes_requested": null,
+    "tech_stack": {
+        "frontend": {
+            "language": "TypeScript",
+            "framework": "React Native (Mobile) & React (Web)",
+            "reasoning": "React Native enables cross-platform mobile development (shared codebase for Customer/Provider apps). React is standard for the Admin portal. TypeScript ensures type safety across the stack."
+        },
+        "backend": {
+            "language": "TypeScript",
+            "framework": "Node.js with NestJS",
+            "api_style": "REST & WebSockets",
+            "reasoning": "NestJS provides a structured modular architecture perfect for microservices. Node.js is highly efficient for I/O-bound real-time tasks (Tracking/Notifications) and allows code sharing between services."
+        },
+        "database": {
+            "type": "Relational & Key-Value",
+            "name": "PostgreSQL (with PostGIS extension) & Redis",
+            "orm": "Prisma",
+            "reasoning": "PostgreSQL/PostGIS is the industry standard for geospatial matching. Redis is essential for low-latency real-time tracking and caching. Prisma offers rapid development for the 3-month MVP timeline."
+        },
+        "infra": {
+            "provider": "Google Cloud Platform (GCP) or AWS",
+            "services": [
+                "Cloud Run (Serverless Containers)",
+                "Managed PostgreSQL (e.g., Cloud SQL)",
+                "Redis (e.g., MemoryStore)",
+                "Firebase/AWS SNS (Notifications)"
+            ],
+            "reasoning": "Leveraging cloud-native managed services (Cloud Run/Lambda) minimizes operational overhead and fits the $500/6-month budget via generous free tiers."
+        },
+        "overall_reasoning": "The stack prioritizes rapid development (TypeScript/Prisma/Cloud Run) to meet the 3-month MVP deadline while utilizing proven, scalable technologies for geospatial matching (PostGIS) and real-time updates (WebSockets/Redis). The serverless-first approach (Cloud Run) keeps costs minimal, aligning with the $500 budget.",
+        "confidence": 0.85
+    },
+    "services": {
+        "services": [
+            {
+                "name": "Matching Engine (Geospatial)",
+                "responsibility": "Matches customers to the nearest available service providers based on location and skill.",
+                "owned_data": [
+                    "Provider Availability Index",
+                    "Service Areas"
+                ],
+                "dependencies": [
+                    "User & Provider Management Service",
+                    "Booking & Scheduling Service"
+                ],
+                "key_patterns": [
+                    "PostGIS Geospatial Queries",
+                    "K-Nearest Neighbor Algorithms"
+                ]
+            },
+            {
+                "name": "Real-time Tracking Service (WebSockets)",
+                "responsibility": "Broadcasts real-time location updates of service providers to customers during active bookings.",
+                "owned_data": [
+                    "Live Provider Coordinates"
+                ],
+                "dependencies": [
+                    "User & Provider Management Service"
+                ],
+                "key_patterns": [
+                    "WebSockets (Socket.io)",
+                    "Redis Pub/Sub"
+                ]
+            },
+            {
+                "name": "User & Provider Management Service",
+                "responsibility": "Handles user authentication, provider onboarding, identity verification, and profile management.",
+                "owned_data": [
+                    "User Profiles",
+                    "Provider Credentials",
+                    "Verification Status"
+                ],
+                "dependencies": [],
+                "key_patterns": [
+                    "JWT Authentication",
+                    "Role-Based Access Control (RBAC)"
+                ]
+            },
+            {
+                "name": "Booking & Scheduling Service",
+                "responsibility": "Manages the end-to-end lifecycle of a service appointment from booking to completion.",
+                "owned_data": [
+                    "Bookings",
+                    "Schedules",
+                    "Service History"
+                ],
+                "dependencies": [
+                    "User & Provider Management Service",
+                    "Matching Engine (Geospatial)"
+                ],
+                "key_patterns": [
+                    "State Machine for Booking Lifecycle"
+                ]
+            },
+            {
+                "name": "Payment Gateway Integration",
+                "responsibility": "Interfaces with third-party payment providers to process secure transactions.",
+                "owned_data": [
+                    "Transaction Logs",
+                    "Payment Status"
+                ],
+                "dependencies": [
+                    "Booking & Scheduling Service"
+                ],
+                "key_patterns": [
+                    "Idempotency Keys",
+                    "Webhook Integration"
+                ]
+            },
+            {
+                "name": "Review & Rating Service",
+                "responsibility": "Stores and retrieves service provider feedback and quality scores.",
+                "owned_data": [
+                    "Reviews",
+                    "Ratings"
+                ],
+                "dependencies": [
+                    "Booking & Scheduling Service"
+                ],
+                "key_patterns": [
+                    "CRUD API"
+                ]
+            },
+            {
+                "name": "Notification Service",
+                "responsibility": "Sends transactional notifications (booking updates, reminders) to users via multiple channels.",
+                "owned_data": [
+                    "Notification Preferences",
+                    "Message History"
+                ],
+                "dependencies": [],
+                "key_patterns": [
+                    "Event-Driven Architecture",
+                    "Push/SMS/Email Integration"
+                ]
+            }
+        ],
+        "reasoning": "The design maps the requested features into discrete microservices, ensuring independent scalability for high-load components like the matching engine and tracking service. PostGIS is utilized within the matching engine for geospatial queries, and Redis handles transient state for real-time tracking.",
+        "confidence": 0.95
+    },
+    "approved": true,
+    "rerun_node": null,
+    "changes_requested": null,
+    "api_endpoints": {
+        "api_design": [
+            {
+                "name": "Matching Engine API",
+                "purpose": "Finds nearby service providers based on coordinates and skill requirements.",
+                "base_route": "/v1/providers/search"
+            },
+            {
+                "name": "Real-time Tracking API",
+                "purpose": "Manages WebSocket connections and subscription to provider location broadcasts.",
+                "base_route": "/v1/tracking"
+            },
+            {
+                "name": "User & Provider Management API",
+                "purpose": "Handles registration, authentication, identity verification, and profile management.",
+                "base_route": "/v1/users, /v1/providers"
+            },
+            {
+                "name": "Booking & Scheduling API",
+                "purpose": "Manages the lifecycle of service appointments, including creation, status tracking, and history.",
+                "base_route": "/v1/bookings"
+            },
+            {
+                "name": "Payment Gateway API",
+                "purpose": "Handles secure transaction processing and reconciliation with third-party providers.",
+                "base_route": "/v1/payments"
+            },
+            {
+                "name": "Review & Rating API",
+                "purpose": "Manages feedback and quality scores for service providers.",
+                "base_route": "/v1/reviews"
+            },
+            {
+                "name": "Notification Service API",
+                "purpose": "Manages notification preferences and retrieves message history.",
+                "base_route": "/v1/notifications"
+            }
+        ],
+        "frontend_notes": "1. Use Socket.io client for real-time tracking updates. 2. Implement JWT-based authentication headers for all protected endpoints. 3. Use idempotency keys for all POST requests in the Payment and Booking services to prevent duplicate transactions/bookings. 4. Leverage pagination for Review and Booking history endpoints.",
+        "reasoning": "The design maps the requested features into discrete microservices, ensuring independent scalability for high-load components like the matching engine and tracking service. PostGIS is utilized within the matching engine for geospatial queries, and Redis handles transient state for real-time tracking. API routes are grouped logically by service domain.",
+        "confidence": 0.95
+    },
+    "infrastructure": {
+        "cloud": "AWS",
+        "infra_services": [
+            "AWS RDS (PostgreSQL + PostGIS) - Matching Engine data",
+            "Amazon ElastiCache (Redis) - Pub/Sub for Real-time Tracking & Caching",
+            "Amazon ECS (Fargate) - Microservices hosting",
+            "Amazon SQS/SNS - Notification Service/Event bus",
+            "Amazon Cognito - User & Provider Management (Auth)",
+            "Amazon S3 - Media/Profile storage"
+        ],
+        "deployment": "Containerized (ECS Fargate) with managed services for low operational overhead and cost-efficiency within the $500/6mo budget.",
+        "reasoning": "The infrastructure leverages managed services to minimize operational overhead for a small team. PostgreSQL with PostGIS is essential for the Matching Engine. Redis is utilized for high-frequency location updates. ECS Fargate provides a serverless container approach, keeping costs predictable and low for the MVP phase. AWS Cognito is chosen to offload identity management, simplifying the User & Provider Management Service.",
+        "confidence": 0.95
+    },
+    "database_schema": {
+        "tables": [
+            {
+                "name": "users",
+                "desciption": "User & Provider Management: Stores user profiles and authentication/role details.",
+                "fields": [
+                    "id: uuid, pk",
+                    "email: varchar, unique",
+                    "password_hash: varchar",
+                    "role: varchar (user/provider/admin)",
+                    "created_at: timestamp"
+                ],
+                "relations": []
+            },
+            {
+                "name": "provider_profiles",
+                "desciption": "User & Provider Management: Stores professional details for providers.",
+                "fields": [
+                    "id: uuid, pk",
+                    "user_id: uuid, fk -> users.id",
+                    "identity_verified: boolean",
+                    "skills: jsonb",
+                    "bio: text"
+                ],
+                "relations": []
+            },
+            {
+                "name": "service_areas",
+                "desciption": "Matching Engine: Stores service areas as polygons for geospatial lookup.",
+                "fields": [
+                    "id: uuid, pk",
+                    "name: varchar",
+                    "boundary: geometry (polygon)"
+                ],
+                "relations": []
+            },
+            {
+                "name": "provider_availability",
+                "desciption": "Matching Engine: Stores real-time availability of providers.",
+                "fields": [
+                    "id: uuid, pk",
+                    "provider_id: uuid, fk -> users.id",
+                    "location: geometry (point)",
+                    "is_available: boolean",
+                    "last_updated: timestamp"
+                ],
+                "relations": []
+            },
+            {
+                "name": "bookings",
+                "desciption": "Booking & Scheduling: Core booking entity with state tracking.",
+                "fields": [
+                    "id: uuid, pk",
+                    "customer_id: uuid, fk -> users.id",
+                    "provider_id: uuid, fk -> users.id",
+                    "status: varchar (pending/confirmed/in_progress/completed/cancelled)",
+                    "scheduled_time: timestamp",
+                    "created_at: timestamp"
+                ],
+                "relations": []
+            },
+            {
+                "name": "transactions",
+                "desciption": "Payment Gateway: Tracks transaction status and idempotency.",
+                "fields": [
+                    "id: uuid, pk",
+                    "booking_id: uuid, fk -> bookings.id",
+                    "transaction_ref: varchar",
+                    "amount: decimal",
+                    "status: varchar",
+                    "idempotency_key: varchar, unique"
+                ],
+                "relations": []
+            },
+            {
+                "name": "reviews",
+                "desciption": "Review & Rating: Stores user feedback.",
+                "fields": [
+                    "id: uuid, pk",
+                    "booking_id: uuid, fk -> bookings.id",
+                    "reviewer_id: uuid, fk -> users.id",
+                    "provider_id: uuid, fk -> users.id",
+                    "rating: int",
+                    "comment: text"
+                ],
+                "relations": []
+            },
+            {
+                "name": "notification_preferences",
+                "desciption": "Notification Service: User notification settings.",
+                "fields": [
+                    "id: uuid, pk",
+                    "user_id: uuid, fk -> users.id",
+                    "channel: varchar (email/sms/push)",
+                    "enabled: boolean"
+                ],
+                "relations": []
+            },
+            {
+                "name": "message_history",
+                "desciption": "Notification Service: Audit log of sent messages.",
+                "fields": [
+                    "id: uuid, pk",
+                    "user_id: uuid, fk -> users.id",
+                    "message_type: varchar",
+                    "content: text",
+                    "sent_at: timestamp"
+                ],
+                "relations": []
+            }
+        ],
+        "reasoning": "The schema is structured to support microservices with clear domain boundaries. PostgreSQL handles relational data, while PostGIS extensions are assumed for geospatial queries. Redis is implied for volatile data like 'Live Provider Coordinates'.",
+        "confidence": 0.95
+    },
+    "design_bundle": {
+        "services": {
+            "services": [
+                {
+                    "name": "Matching Engine (Geospatial)",
+                    "responsibility": "Matches customers to the nearest available service providers based on location and skill.",
+                    "owned_data": [
+                        "Provider Availability Index",
+                        "Service Areas"
+                    ],
+                    "dependencies": [
+                        "User & Provider Management Service",
+                        "Booking & Scheduling Service"
+                    ],
+                    "key_patterns": [
+                        "PostGIS Geospatial Queries",
+                        "K-Nearest Neighbor Algorithms"
+                    ]
+                },
+                {
+                    "name": "Real-time Tracking Service (WebSockets)",
+                    "responsibility": "Broadcasts real-time location updates of service providers to customers during active bookings.",
+                    "owned_data": [
+                        "Live Provider Coordinates"
+                    ],
+                    "dependencies": [
+                        "User & Provider Management Service"
+                    ],
+                    "key_patterns": [
+                        "WebSockets (Socket.io)",
+                        "Redis Pub/Sub"
+                    ]
+                },
+                {
+                    "name": "User & Provider Management Service",
+                    "responsibility": "Handles user authentication, provider onboarding, identity verification, and profile management.",
+                    "owned_data": [
+                        "User Profiles",
+                        "Provider Credentials",
+                        "Verification Status"
+                    ],
+                    "dependencies": [],
+                    "key_patterns": [
+                        "JWT Authentication",
+                        "Role-Based Access Control (RBAC)"
+                    ]
+                },
+                {
+                    "name": "Booking & Scheduling Service",
+                    "responsibility": "Manages the end-to-end lifecycle of a service appointment from booking to completion.",
+                    "owned_data": [
+                        "Bookings",
+                        "Schedules",
+                        "Service History"
+                    ],
+                    "dependencies": [
+                        "User & Provider Management Service",
+                        "Matching Engine (Geospatial)"
+                    ],
+                    "key_patterns": [
+                        "State Machine for Booking Lifecycle"
+                    ]
+                },
+                {
+                    "name": "Payment Gateway Integration",
+                    "responsibility": "Interfaces with third-party payment providers to process secure transactions.",
+                    "owned_data": [
+                        "Transaction Logs",
+                        "Payment Status"
+                    ],
+                    "dependencies": [
+                        "Booking & Scheduling Service"
+                    ],
+                    "key_patterns": [
+                        "Idempotency Keys",
+                        "Webhook Integration"
+                    ]
+                },
+                {
+                    "name": "Review & Rating Service",
+                    "responsibility": "Stores and retrieves service provider feedback and quality scores.",
+                    "owned_data": [
+                        "Reviews",
+                        "Ratings"
+                    ],
+                    "dependencies": [
+                        "Booking & Scheduling Service"
+                    ],
+                    "key_patterns": [
+                        "CRUD API"
+                    ]
+                },
+                {
+                    "name": "Notification Service",
+                    "responsibility": "Sends transactional notifications (booking updates, reminders) to users via multiple channels.",
+                    "owned_data": [
+                        "Notification Preferences",
+                        "Message History"
+                    ],
+                    "dependencies": [],
+                    "key_patterns": [
+                        "Event-Driven Architecture",
+                        "Push/SMS/Email Integration"
+                    ]
+                }
+            ],
+            "reasoning": "The design maps the requested features into discrete microservices, ensuring independent scalability for high-load components like the matching engine and tracking service. PostGIS is utilized within the matching engine for geospatial queries, and Redis handles transient state for real-time tracking.",
+            "confidence": 0.95
+        },
+        "database_schema": {
+            "tables": [
+                {
+                    "name": "users",
+                    "desciption": "User & Provider Management: Stores user profiles and authentication/role details.",
+                    "fields": [
+                        "id: uuid, pk",
+                        "email: varchar, unique",
+                        "password_hash: varchar",
+                        "role: varchar (user/provider/admin)",
+                        "created_at: timestamp"
+                    ],
+                    "relations": []
+                },
+                {
+                    "name": "provider_profiles",
+                    "desciption": "User & Provider Management: Stores professional details for providers.",
+                    "fields": [
+                        "id: uuid, pk",
+                        "user_id: uuid, fk -> users.id",
+                        "identity_verified: boolean",
+                        "skills: jsonb",
+                        "bio: text"
+                    ],
+                    "relations": []
+                },
+                {
+                    "name": "service_areas",
+                    "desciption": "Matching Engine: Stores service areas as polygons for geospatial lookup.",
+                    "fields": [
+                        "id: uuid, pk",
+                        "name: varchar",
+                        "boundary: geometry (polygon)"
+                    ],
+                    "relations": []
+                },
+                {
+                    "name": "provider_availability",
+                    "desciption": "Matching Engine: Stores real-time availability of providers.",
+                    "fields": [
+                        "id: uuid, pk",
+                        "provider_id: uuid, fk -> users.id",
+                        "location: geometry (point)",
+                        "is_available: boolean",
+                        "last_updated: timestamp"
+                    ],
+                    "relations": []
+                },
+                {
+                    "name": "bookings",
+                    "desciption": "Booking & Scheduling: Core booking entity with state tracking.",
+                    "fields": [
+                        "id: uuid, pk",
+                        "customer_id: uuid, fk -> users.id",
+                        "provider_id: uuid, fk -> users.id",
+                        "status: varchar (pending/confirmed/in_progress/completed/cancelled)",
+                        "scheduled_time: timestamp",
+                        "created_at: timestamp"
+                    ],
+                    "relations": []
+                },
+                {
+                    "name": "transactions",
+                    "desciption": "Payment Gateway: Tracks transaction status and idempotency.",
+                    "fields": [
+                        "id: uuid, pk",
+                        "booking_id: uuid, fk -> bookings.id",
+                        "transaction_ref: varchar",
+                        "amount: decimal",
+                        "status: varchar",
+                        "idempotency_key: varchar, unique"
+                    ],
+                    "relations": []
+                },
+                {
+                    "name": "reviews",
+                    "desciption": "Review & Rating: Stores user feedback.",
+                    "fields": [
+                        "id: uuid, pk",
+                        "booking_id: uuid, fk -> bookings.id",
+                        "reviewer_id: uuid, fk -> users.id",
+                        "provider_id: uuid, fk -> users.id",
+                        "rating: int",
+                        "comment: text"
+                    ],
+                    "relations": []
+                },
+                {
+                    "name": "notification_preferences",
+                    "desciption": "Notification Service: User notification settings.",
+                    "fields": [
+                        "id: uuid, pk",
+                        "user_id: uuid, fk -> users.id",
+                        "channel: varchar (email/sms/push)",
+                        "enabled: boolean"
+                    ],
+                    "relations": []
+                },
+                {
+                    "name": "message_history",
+                    "desciption": "Notification Service: Audit log of sent messages.",
+                    "fields": [
+                        "id: uuid, pk",
+                        "user_id: uuid, fk -> users.id",
+                        "message_type: varchar",
+                        "content: text",
+                        "sent_at: timestamp"
+                    ],
+                    "relations": []
+                }
+            ],
+            "reasoning": "The schema is structured to support microservices with clear domain boundaries. PostgreSQL handles relational data, while PostGIS extensions are assumed for geospatial queries. Redis is implied for volatile data like 'Live Provider Coordinates'.",
+            "confidence": 0.95
+        },
+        "api_endpoints": {
+            "api_design": [
+                {
+                    "name": "Matching Engine API",
+                    "purpose": "Finds nearby service providers based on coordinates and skill requirements.",
+                    "base_route": "/v1/providers/search"
+                },
+                {
+                    "name": "Real-time Tracking API",
+                    "purpose": "Manages WebSocket connections and subscription to provider location broadcasts.",
+                    "base_route": "/v1/tracking"
+                },
+                {
+                    "name": "User & Provider Management API",
+                    "purpose": "Handles registration, authentication, identity verification, and profile management.",
+                    "base_route": "/v1/users, /v1/providers"
+                },
+                {
+                    "name": "Booking & Scheduling API",
+                    "purpose": "Manages the lifecycle of service appointments, including creation, status tracking, and history.",
+                    "base_route": "/v1/bookings"
+                },
+                {
+                    "name": "Payment Gateway API",
+                    "purpose": "Handles secure transaction processing and reconciliation with third-party providers.",
+                    "base_route": "/v1/payments"
+                },
+                {
+                    "name": "Review & Rating API",
+                    "purpose": "Manages feedback and quality scores for service providers.",
+                    "base_route": "/v1/reviews"
+                },
+                {
+                    "name": "Notification Service API",
+                    "purpose": "Manages notification preferences and retrieves message history.",
+                    "base_route": "/v1/notifications"
+                }
+            ],
+            "frontend_notes": "1. Use Socket.io client for real-time tracking updates. 2. Implement JWT-based authentication headers for all protected endpoints. 3. Use idempotency keys for all POST requests in the Payment and Booking services to prevent duplicate transactions/bookings. 4. Leverage pagination for Review and Booking history endpoints.",
+            "reasoning": "The design maps the requested features into discrete microservices, ensuring independent scalability for high-load components like the matching engine and tracking service. PostGIS is utilized within the matching engine for geospatial queries, and Redis handles transient state for real-time tracking. API routes are grouped logically by service domain.",
+            "confidence": 0.95
+        },
+        "infrastructure": {
+            "cloud": "AWS",
+            "infra_services": [
+                "AWS RDS (PostgreSQL + PostGIS) - Matching Engine data",
+                "Amazon ElastiCache (Redis) - Pub/Sub for Real-time Tracking & Caching",
+                "Amazon ECS (Fargate) - Microservices hosting",
+                "Amazon SQS/SNS - Notification Service/Event bus",
+                "Amazon Cognito - User & Provider Management (Auth)",
+                "Amazon S3 - Media/Profile storage"
+            ],
+            "deployment": "Containerized (ECS Fargate) with managed services for low operational overhead and cost-efficiency within the $500/6mo budget.",
+            "reasoning": "The infrastructure leverages managed services to minimize operational overhead for a small team. PostgreSQL with PostGIS is essential for the Matching Engine. Redis is utilized for high-frequency location updates. ECS Fargate provides a serverless container approach, keeping costs predictable and low for the MVP phase. AWS Cognito is chosen to offload identity management, simplifying the User & Provider Management Service.",
+            "confidence": 0.95
+        }
+    },
+    "req_align_report": {
+        "issues": [
+            {
+                "issue_name": "Missing Provider Verification Workflow Service",
+                "description": "The 'User & Provider Management Service' is responsible for provider onboarding and identity verification, but there is no dedicated service or workflow component defined for the 'Provider verification and onboarding workflow' requirement (e.g., document upload, background check processing, or manual approval queue).",
+                "component": "services",
+                "severity": "high"
+            },
+            {
+                "issue_name": "Missing Financial/Payout Management Service",
+                "description": "The 'Payment Gateway Integration' is listed as a service, but the architecture lacks a 'Finance/Billing Service' to manage ledger entries, invoices, platform commission calculations, and payout scheduling to service providers, which are essential for an on-demand marketplace.",
+                "component": "services",
+                "severity": "high"
+            },
+            {
+                "issue_name": "Missing API Gateway/BFF Layer",
+                "description": "The architecture lacks an 'API Gateway' or 'BFF (Backend for Frontend)' layer. Given the requirement for mobile apps and a web portal, a centralized entry point is necessary for cross-cutting concerns like rate limiting, request routing, and unified authentication, which are not currently addressed in the microservices module list.",
+                "component": "architecture",
+                "severity": "medium"
+            },
+            {
+                "issue_name": "Microservices Architecture Overhead vs. Constraints",
+                "description": "The microservices architecture introduces significant operational complexity (service discovery, inter-service communication, distributed tracing) that contradicts the '3 months for MVP' timeline and the minimal $500/6-month budget constraint, as maintaining multiple independent deployments and infrastructure overhead will likely exceed both time and cost projections.",
+                "component": "architecture",
+                "severity": "high"
+            },
+            {
+                "issue_name": "Budget Infeasibility of Multi-Service Infrastructure",
+                "description": "While cloud-native managed services offer free tiers, the combination of multiple microservices (at least 10 identified) running on Cloud Run, coupled with managed PostgreSQL and Redis instances, will likely exceed the $500 total budget within 6 months once the services move past the initial free-tier usage or hit minimum provisioning costs for production-ready managed databases.",
+                "component": "infrastructure",
+                "severity": "high"
+            }
+        ],
+        "total_checks": 24,
+        "confidence": 0.85
+    },
+    "cross_component_report": {
+        "issues": [
+            {
+                "issue_name": "Missing Idempotency Field in Bookings Table",
+                "description": "The Booking API requires idempotency keys to prevent duplicate bookings, but the 'bookings' table lacks an 'idempotency_key' field, creating a mismatch between the API's stated requirement and the database schema.",
+                "component": "api_design",
+                "severity": "high"
+            },
+            {
+                "issue_name": "Incorrect Foreign Key Reference for Provider Availability",
+                "description": "The 'provider_availability' table uses 'provider_id' as a FK to 'users.id', but the 'provider_profiles' table is the correct entity for provider-specific data. This creates a risk of data inconsistency where availability might be linked to a non-provider user role.",
+                "component": "database_design",
+                "severity": "medium"
+            },
+            {
+                "issue_name": "Mismatch in Geospatial and Skill Data Location",
+                "description": "The 'Matching Engine API' supports searching by skill requirements, but the 'provider_availability' table (used for geospatial lookups) does not contain a skill reference, and the 'provider_profiles' table (containing skills) lacks the geospatial data required for the lookup. This necessitates an inefficient join across domains that may break microservice isolation.",
+                "component": "api_design",
+                "severity": "medium"
+            },
+            {
+                "issue_name": "WebSocket Scalability and Lifecycle Management",
+                "description": "The Real-time Tracking API requires persistent WebSocket connections, yet the infrastructure design does not specify an API Gateway or Load Balancer configuration capable of handling persistent connection state and connection draining for ECS tasks.",
+                "component": "api_design",
+                "severity": "high"
+            },
+            {
+                "issue_name": "Resource Contention in RDS",
+                "description": "The Matching Engine relies on PostGIS for high-frequency geospatial queries. Given the $500/6mo budget constraint, a single RDS instance for both transactional data and high-load geospatial indexing creates a significant availability risk and potential performance bottleneck during peak traffic.",
+                "component": "infrastructure",
+                "severity": "medium"
+            },
+            {
+                "issue_name": "Inconsistent Idempotency Implementation",
+                "description": "The design identifies the need for idempotency keys for Payment and Booking services, but the infrastructure lacks an explicitly defined distributed storage layer (e.g., DynamoDB or a dedicated Redis cluster) to persist these keys across distributed ECS instances to ensure idempotency.",
+                "component": "api_design",
+                "severity": "medium"
+            }
+        ],
+        "total_checks": 18,
+        "confidence": 0.875
+    },
+    "decision_optimizations": {
+        "suggestions": [
+            {
+                "title": "Hybrid Compute Strategy (Fargate + Lambda)",
+                "description": "Switch from ECS Fargate to AWS Lambda for low-traffic services (Notification, Review, User Management) to leverage the Lambda free tier and scale to zero, significantly reducing costs during the initial 6-month MVP phase.",
+                "category": "cost",
+                "impact": "high"
+            },
+            {
+                "title": "Redis Geo-Spatial Offloading",
+                "description": "Implement 'Geohashing' in Redis to store and query nearby providers. Use Redis Geo commands to offload geospatial filtering from the RDS PostGIS instance, reducing database load and latency for the Matching Engine.",
+                "category": "performance",
+                "impact": "high"
+            },
+            {
+                "title": "Centralized Shared TypeScript Library",
+                "description": "Implement a 'Shared Library' package for common DTOs, interfaces, and Prisma schemas. Since the stack is monorepo-friendly (TypeScript/NestJS), this prevents code duplication across microservices and ensures type consistency.",
+                "category": "maintainability",
+                "impact": "medium"
+            },
+            {
+                "title": "Event-Driven Architecture via EventBridge",
+                "description": "Implement a dedicated 'Event Bus' pattern using Amazon EventBridge instead of SQS/SNS for inter-service communication. This simplifies the orchestration of complex workflows like Booking-to-Payment-to-Notification, reducing coupling between services.",
+                "category": "scalability",
+                "impact": "medium"
+            },
+            {
+                "title": "Managed WebSocket Gateway",
+                "description": "Offload WebSocket connection management to AWS AppSync or API Gateway WebSockets. This removes the need to scale container instances based on open connections, allowing the NestJS services to focus purely on business logic.",
+                "category": "performance",
+                "impact": "high"
+            }
+        ],
+        "confidence": 0.9
+    },
+    "scoring_report": {
+        "requirement_alignment_score": 0.8958,
+        "cross_component_score": 0.8333,
+        "optimization_score": 0.6,
+        "validation_score": 0.8635,
+        "confidence": 0.8955,
+        "final_score": 0.7434
+    },
+    "final_score": 0.7434,
+    "final_output_report": "# System Design Report\n\n### User Input\nBuild a platform like Uber but for home services\n\n## Requirements\n\n### Problem Statement\nConnect customers with local service providers for plumbing, electrical, and cleaning tasks in an on-demand, Uber-like model.\n\n### Target Users\n- Homeowners/Renters\n- Service Professionals\n\n### Core Features\n- Provider-customer matching engine\n- Real-time tracking of service professionals\n- In-app secure payment processing\n- Service rating and review system\n- Provider verification and onboarding workflow\n\n### User Actions\n- Search for services\n- Book service appointments\n- Track professional location\n- Make payments\n- Rate service quality\n\n### Entities\n- Customer\n- Service Provider (Plumber, Electrician, Cleaner)\n- Platform Administrator\n\n### Scale Hint\nStarting in major metropolitan areas in India\n\n### Domain\nOn-demand home services platform\n\n## Architecture\n\n**Pattern**: microservices\n\n### Modules\n- Mobile App (Customer)\n- Mobile App (Provider)\n- Admin Web Portal\n- Matching Engine (Geospatial)\n- Real-time Tracking Service (WebSockets)\n- Payment Gateway Integration\n- User & Provider Management Service\n- Booking & Scheduling Service\n- Review & Rating Service\n- Notification Service\n\n**Reasoning**: A microservices architecture is chosen to allow independent scaling of the real-time tracking, matching, and payment modules, which is critical for an on-demand service model. This also supports the rapid feature delivery required for the 3-6 month timeline. Monolithic architecture was rejected due to the need for independent deployment of real-time components and the projected growth in metropolitan markets.\n\n**Confidence**: 0.9\n\n## Tech Stack\n\n**Frontend**\n- Language: TypeScript\n- Framework: React Native (Mobile) & React (Web)\n- Reasoning: React Native enables cross-platform mobile development (shared codebase for Customer/Provider apps). React is standard for the Admin portal. TypeScript ensures type safety across the stack.\n\n**Backend**\n- Language: TypeScript\n- Framework: Node.js with NestJS\n- API Style: REST & WebSockets\n- Reasoning: NestJS provides a structured modular architecture perfect for microservices. Node.js is highly efficient for I/O-bound real-time tasks (Tracking/Notifications) and allows code sharing between services.\n\n**Database**\n- Type: Relational & Key-Value\n- Name: PostgreSQL (with PostGIS extension) & Redis\n- ORM: Prisma\n- Reasoning: PostgreSQL/PostGIS is the industry standard for geospatial matching. Redis is essential for low-latency real-time tracking and caching. Prisma offers rapid development for the 3-month MVP timeline.\n\n**Infrastructure**\n- Provider: Google Cloud Platform (GCP) or AWS\n- Services:\n  - Cloud Run (Serverless Containers)\n  - Managed PostgreSQL (e.g., Cloud SQL)\n  - Redis (e.g., MemoryStore)\n  - Firebase/AWS SNS (Notifications)\n- Reasoning: Leveraging cloud-native managed services (Cloud Run/Lambda) minimizes operational overhead and fits the $500/6-month budget via generous free tiers.\n\n**Overall Reasoning**\nThe stack prioritizes rapid development (TypeScript/Prisma/Cloud Run) to meet the 3-month MVP deadline while utilizing proven, scalable technologies for geospatial matching (PostGIS) and real-time updates (WebSockets/Redis). The serverless-first approach (Cloud Run) keeps costs minimal, aligning with the $500 budget.\n\n**Confidence**\n0.85\n\n## Design Bundle\n\n### Services\n- Name: Matching Engine (Geospatial)\n  - Responsibility: Matches customers to the nearest available service providers based on location and skill.\n  - Owned Data:\n    - Provider Availability Index\n    - Service Areas\n  - Dependencies:\n    - User & Provider Management Service\n    - Booking & Scheduling Service\n  - Key Patterns: ['PostGIS Geospatial Queries', 'K-Nearest Neighbor Algorithms']\n- Name: Real-time Tracking Service (WebSockets)\n  - Responsibility: Broadcasts real-time location updates of service providers to customers during active bookings.\n  - Owned Data:\n    - Live Provider Coordinates\n  - Dependencies:\n    - User & Provider Management Service\n  - Key Patterns: ['WebSockets (Socket.io)', 'Redis Pub/Sub']\n- Name: User & Provider Management Service\n  - Responsibility: Handles user authentication, provider onboarding, identity verification, and profile management.\n  - Owned Data:\n    - User Profiles\n    - Provider Credentials\n    - Verification Status\n  - Dependencies:\n    - None\n  - Key Patterns: ['JWT Authentication', 'Role-Based Access Control (RBAC)']\n- Name: Booking & Scheduling Service\n  - Responsibility: Manages the end-to-end lifecycle of a service appointment from booking to completion.\n  - Owned Data:\n    - Bookings\n    - Schedules\n    - Service History\n  - Dependencies:\n    - User & Provider Management Service\n    - Matching Engine (Geospatial)\n  - Key Patterns: ['State Machine for Booking Lifecycle']\n- Name: Payment Gateway Integration\n  - Responsibility: Interfaces with third-party payment providers to process secure transactions.\n  - Owned Data:\n    - Transaction Logs\n    - Payment Status\n  - Dependencies:\n    - Booking & Scheduling Service\n  - Key Patterns: ['Idempotency Keys', 'Webhook Integration']\n- Name: Review & Rating Service\n  - Responsibility: Stores and retrieves service provider feedback and quality scores.\n  - Owned Data:\n    - Reviews\n    - Ratings\n  - Dependencies:\n    - Booking & Scheduling Service\n  - Key Patterns: ['CRUD API']\n- Name: Notification Service\n  - Responsibility: Sends transactional notifications (booking updates, reminders) to users via multiple channels.\n  - Owned Data:\n    - Notification Preferences\n    - Message History\n  - Dependencies:\n    - None\n  - Key Patterns: ['Event-Driven Architecture', 'Push/SMS/Email Integration']\n- Reasoning: The design maps the requested features into discrete microservices, ensuring independent scalability for high-load components like the matching engine and tracking service. PostGIS is utilized within the matching engine for geospatial queries, and Redis handles transient state for real-time tracking.\n- Confidence: 0.95\n\n### Database Schema\n- Name: users\n  - Description: User & Provider Management: Stores user profiles and authentication/role details.\n  - Fields:\n    - id: uuid, pk\n    - email: varchar, unique\n    - password_hash: varchar\n    - role: varchar (user/provider/admin)\n    - created_at: timestamp\n  - Relations:\n    - None\n- Name: provider_profiles\n  - Description: User & Provider Management: Stores professional details for providers.\n  - Fields:\n    - id: uuid, pk\n    - user_id: uuid, fk -> users.id\n    - identity_verified: boolean\n    - skills: jsonb\n    - bio: text\n  - Relations:\n    - None\n- Name: service_areas\n  - Description: Matching Engine: Stores service areas as polygons for geospatial lookup.\n  - Fields:\n    - id: uuid, pk\n    - name: varchar\n    - boundary: geometry (polygon)\n  - Relations:\n    - None\n- Name: provider_availability\n  - Description: Matching Engine: Stores real-time availability of providers.\n  - Fields:\n    - id: uuid, pk\n    - provider_id: uuid, fk -> users.id\n    - location: geometry (point)\n    - is_available: boolean\n    - last_updated: timestamp\n  - Relations:\n    - None\n- Name: bookings\n  - Description: Booking & Scheduling: Core booking entity with state tracking.\n  - Fields:\n    - id: uuid, pk\n    - customer_id: uuid, fk -> users.id\n    - provider_id: uuid, fk -> users.id\n    - status: varchar (pending/confirmed/in_progress/completed/cancelled)\n    - scheduled_time: timestamp\n    - created_at: timestamp\n  - Relations:\n    - None\n- Name: transactions\n  - Description: Payment Gateway: Tracks transaction status and idempotency.\n  - Fields:\n    - id: uuid, pk\n    - booking_id: uuid, fk -> bookings.id\n    - transaction_ref: varchar\n    - amount: decimal\n    - status: varchar\n    - idempotency_key: varchar, unique\n  - Relations:\n    - None\n- Name: reviews\n  - Description: Review & Rating: Stores user feedback.\n  - Fields:\n    - id: uuid, pk\n    - booking_id: uuid, fk -> bookings.id\n    - reviewer_id: uuid, fk -> users.id\n    - provider_id: uuid, fk -> users.id\n    - rating: int\n    - comment: text\n  - Relations:\n    - None\n- Name: notification_preferences\n  - Description: Notification Service: User notification settings.\n  - Fields:\n    - id: uuid, pk\n    - user_id: uuid, fk -> users.id\n    - channel: varchar (email/sms/push)\n    - enabled: boolean\n  - Relations:\n    - None\n- Name: message_history\n  - Description: Notification Service: Audit log of sent messages.\n  - Fields:\n    - id: uuid, pk\n    - user_id: uuid, fk -> users.id\n    - message_type: varchar\n    - content: text\n    - sent_at: timestamp\n  - Relations:\n    - None\n- Reasoning: The schema is structured to support microservices with clear domain boundaries. PostgreSQL handles relational data, while PostGIS extensions are assumed for geospatial queries. Redis is implied for volatile data like 'Live Provider Coordinates'.\n- Confidence: 0.95\n\n### API Endpoints\n- Name: Matching Engine API\n  - Purpose: Finds nearby service providers based on coordinates and skill requirements.\n  - Base Route: /v1/providers/search\n- Name: Real-time Tracking API\n  - Purpose: Manages WebSocket connections and subscription to provider location broadcasts.\n  - Base Route: /v1/tracking\n- Name: User & Provider Management API\n  - Purpose: Handles registration, authentication, identity verification, and profile management.\n  - Base Route: /v1/users, /v1/providers\n- Name: Booking & Scheduling API\n  - Purpose: Manages the lifecycle of service appointments, including creation, status tracking, and history.\n  - Base Route: /v1/bookings\n- Name: Payment Gateway API\n  - Purpose: Handles secure transaction processing and reconciliation with third-party providers.\n  - Base Route: /v1/payments\n- Name: Review & Rating API\n  - Purpose: Manages feedback and quality scores for service providers.\n  - Base Route: /v1/reviews\n- Name: Notification Service API\n  - Purpose: Manages notification preferences and retrieves message history.\n  - Base Route: /v1/notifications\n- Frontend Notes: 1. Use Socket.io client for real-time tracking updates. 2. Implement JWT-based authentication headers for all protected endpoints. 3. Use idempotency keys for all POST requests in the Payment and Booking services to prevent duplicate transactions/bookings. 4. Leverage pagination for Review and Booking history endpoints.\n- Reasoning: The design maps the requested features into discrete microservices, ensuring independent scalability for high-load components like the matching engine and tracking service. PostGIS is utilized within the matching engine for geospatial queries, and Redis handles transient state for real-time tracking. API routes are grouped logically by service domain.\n- Confidence: 0.95\n\n### Infrastructure\n- Cloud: AWS\n- Services:\n  - N/A\n- Deployment: Containerized (ECS Fargate) with managed services for low operational overhead and cost-efficiency within the $500/6mo budget.\n- Reasoning: The infrastructure leverages managed services to minimize operational overhead for a small team. PostgreSQL with PostGIS is essential for the Matching Engine. Redis is utilized for high-frequency location updates. ECS Fargate provides a serverless container approach, keeping costs predictable and low for the MVP phase. AWS Cognito is chosen to offload identity management, simplifying the User & Provider Management Service.\n- Confidence: 0.95\n\n**Final Score**: 0.7434%"
+}

@@ -1,0 +1,14 @@
+## Architecture
+
+**Pattern**: {{ architecture.pattern | default('') }}
+
+### Modules
+{% for module in architecture.modules | default([]) %}
+- {{ module }}
+{% else %}
+- N/A
+{% endfor %}
+
+**Reasoning**: {{ architecture.reasoning | default('') }}
+
+**Confidence**: {{ architecture.confidence | default(0.0) }}
