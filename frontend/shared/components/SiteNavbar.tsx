@@ -1,4 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
+import { Menu, X } from "lucide-react";
 
 const navItems = [
   { label: "Home", href: "/" },
@@ -6,20 +10,32 @@ const navItems = [
 ];
 
 export function SiteNavbar() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <header className="sticky top-0 z-40 border-b border-slate-700/80 bg-slate-950/80 backdrop-blur-xl supports-backdrop-filter:bg-slate-950/70">
-      <nav className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4 sm:px-8 lg:px-12">
-        <Link href="/" className="group flex items-center gap-3">
+      <nav className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-8 lg:px-12">
+        <Link href="/" className="group flex min-w-0 items-center gap-3" onClick={() => setMenuOpen(false)}>
           <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-cyan-500 to-emerald-500 text-sm font-black text-white shadow-lg shadow-cyan-900/40 transition group-hover:rotate-6">
             AS
           </span>
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Advanced Agent</p>
-            <p className="text-sm font-black text-slate-100">Software Architect Studio</p>
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 sm:text-xs">Advanced Agent</p>
+            <p className="truncate text-sm font-black text-slate-100 sm:text-base">Software Architect Studio</p>
           </div>
         </Link>
 
-        <ul className="flex items-center gap-2 sm:gap-3">
+        <button
+          type="button"
+          className="inline-flex items-center justify-center rounded-xl border border-slate-700 p-2 text-slate-200 transition hover:border-cyan-400 hover:text-cyan-200 sm:hidden"
+          onClick={() => setMenuOpen((value) => !value)}
+          aria-label="Toggle navigation menu"
+          aria-expanded={menuOpen}
+        >
+          {menuOpen ? <X size={18} /> : <Menu size={18} />}
+        </button>
+
+        <ul className="hidden items-center gap-2 sm:flex sm:gap-3">
           {navItems.map((item) => (
             <li key={item.label}>
               <Link
@@ -32,6 +48,25 @@ export function SiteNavbar() {
           ))}
         </ul>
       </nav>
+
+      {menuOpen && (
+        <div className="border-t border-slate-800 bg-slate-950/95 px-4 py-3 sm:hidden">
+          <ul className="flex flex-col gap-2">
+            {navItems.map((item) => (
+              <li key={item.label}>
+                <Link
+                  href={item.href}
+                  className="flex items-center justify-between rounded-xl border border-slate-700 px-4 py-3 text-sm font-semibold text-slate-200 transition hover:border-cyan-400 hover:text-cyan-200"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <span>{item.label}</span>
+                  <span className="text-xs uppercase tracking-[0.14em] text-slate-500">Go</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </header>
   );
 }

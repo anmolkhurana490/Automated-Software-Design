@@ -59,6 +59,8 @@ export function useDesignStudioViewModel(projectId: string): DesignStudioViewMod
       const data = await startStudio(projectId, userInput);
       const sessionId = data?.session_id ?? data ?? null;
 
+      resetSession();
+
       if (sessionId) {
         const sessions = useDesignStudioStore.getState().sessions;
         useDesignStudioStore.getState().setSessions(sessions.includes(sessionId) ? sessions : [...sessions, sessionId]);
@@ -160,13 +162,13 @@ export function useDesignStudioViewModel(projectId: string): DesignStudioViewMod
       };
 
       const result = await checkpointStudio(projectId, currentSessionId, responseData);
-      console.log("Agent resumed with stage:", currentStage, "result:", result);
+      console.log("Agent resumed:", result);
 
       if (currentStage === "elicitation") {
         store.setElicitationOutput({ user_answered: true });
       } else if (currentStage === "planning") {
         store.setPlanningOutput({ user_answered: true });
-      } {
+      } else if (currentStage === "design") {
         store.setDesignOutput({ user_answered: true });
       }
 

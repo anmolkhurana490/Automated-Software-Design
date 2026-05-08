@@ -22,6 +22,11 @@ function getStageStatus(progress: Array<{ stage: ProcessingStage; status: StageS
   return progress.find((item) => item.stage === stage)?.status ?? "pending";
 }
 
+function getStageIndex(stage: ProcessingStage | null) {
+  if (!stage) return -1;
+  return stageOrder.indexOf(stage);
+}
+
 export function DesignAgentDashboard() {
   const params = useParams();
   const projectId = params.id as string;
@@ -40,8 +45,6 @@ export function DesignAgentDashboard() {
   const {
     initializeProject,
     selectSession,
-    runProcessing,
-    reloadSessions,
     reset
   } = useDesignStudioViewModel(projectId);
 
@@ -86,11 +89,19 @@ export function DesignAgentDashboard() {
 
   const focusedStage = isProcessing ? activeStage : selectedStage;
 
-  const onRestart = async () => {
-    // restart agent with existing user input
-    await runProcessing();
-    // refresh sessions after starting
-    await reloadSessions();
+  const focusedStageIndex = getStageIndex(focusedStage);
+  const previousStage = focusedStageIndex > 0 ? stageOrder[focusedStageIndex - 1] : null;
+  const nextStage = focusedStageIndex >= 0 && focusedStageIndex < stageOrder.length - 1
+    ? stageOrder[focusedStageIndex + 1]
+    : null;
+
+  const goToStage = (stage: ProcessingStage | null) => {
+    if (!stage) return;
+    setSelectedStage(stage);
+  };
+
+  const onReviewUserInput = async () => {
+    setSelectedStage(null);
   };
 
   const renderMainStage = (stage: ProcessingStage) => {
@@ -112,14 +123,43 @@ export function DesignAgentDashboard() {
       }
     })();
 
+    const stageIndex = getStageIndex(stage);
+    const prevStage = stageIndex > 0 ? stageOrder[stageIndex - 1] : null;
+    const nextStage = stageIndex >= 0 && stageIndex < stageOrder.length - 1
+      ? stageOrder[stageIndex + 1]
+      : null;
+
     return (
       <div className="space-y-4">
         {stagePanel}
+
         {isRunning && (
           <div className="flex max-sm:flex-col items-center gap-2 p-4">
             <Spinner size="sm" />
           </div>
         )}
+
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-950/50 px-4 py-3">
+          <button
+            type="button"
+            onClick={() => goToStage(prevStage)}
+            disabled={!prevStage || isRunning}
+            className="rounded-lg border border-slate-600 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-200 transition hover:border-cyan-400 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-slate-600 disabled:hover:text-slate-200"
+          >
+            ← Previous
+          </button>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
+            {stage}
+          </p>
+          <button
+            type="button"
+            onClick={() => goToStage(nextStage)}
+            disabled={!nextStage || isRunning}
+            className="rounded-lg border border-slate-600 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-slate-200 transition hover:border-cyan-400 hover:text-cyan-300 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-slate-600 disabled:hover:text-slate-200"
+          >
+            Next →
+          </button>
+        </div>
       </div>
     );
   };
@@ -159,42 +199,38 @@ export function DesignAgentDashboard() {
           </div>
 
           {/* Sessions pagination and controls */}
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
+          <div className="flex max-md:flex-col md:items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-2">
               {sessions?.length ? (
-                <div className="inline-flex items-center gap-2">
-                  {sessions.map((s: string, idx: number) => (
-                    <button
-                      key={s}
-                      className={[
-                        "rounded px-2 py-1 text-xs disabled:opacity-50",
-                        currentSessionId === s ? "bg-cyan-600 text-white" : "bg-slate-800 text-slate-300",
-                      ].join(" ")}
-                      onClick={() => handleSelectSession(s)}
-                      disabled={loadingSessionId !== null || isProcessing}
-                    >
-                      {loadingSessionId === s ? (
-                        <span className="inline-flex items-center gap-1">
-                          <div className="w-3 h-3 border-2 border-cyan-200 border-t-transparent rounded-full animate-spin" />
-                          Loading
-                        </span>
-                      ) : (
-                        `Session ${idx + 1}`
-                      )}
-                    </button>
-                  ))}
-                </div>
+                sessions.map((s: string, idx: number) => (
+                  <button
+                    key={s}
+                    className={[
+                      "rounded px-2 py-1 text-xs disabled:opacity-50",
+                      currentSessionId === s ? "bg-cyan-600 text-white" : "bg-slate-800 text-slate-300",
+                    ].join(" ")}
+                    onClick={() => handleSelectSession(s)}
+                    disabled={loadingSessionId !== null || isProcessing}
+                  >
+                    {loadingSessionId === s ? (
+                      <span className="inline-flex items-center gap-1">
+                        <div className="w-3 h-3 border-2 border-cyan-200 border-t-transparent rounded-full animate-spin" />
+                        Loading
+                      </span>
+                    ) : (
+                      `Session ${idx + 1}`
+                    )}
+                  </button>
+                ))
               ) : (
                 <div className="text-sm text-slate-400">No sessions</div>
               )}
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="text-sm text-slate-300">User input:</div>
-              <div className="max-w-xl truncate rounded bg-slate-800 px-3 py-1 text-sm text-slate-200">{userInput}</div>
               <button
                 className="inline-flex items-center gap-2 rounded bg-amber-600 px-3 py-1 text-sm font-semibold hover:bg-amber-700 disabled:bg-amber-600/50"
-                onClick={onRestart}
+                onClick={onReviewUserInput}
                 disabled={isProcessing}
               >
                 {isProcessing ? (
@@ -203,7 +239,7 @@ export function DesignAgentDashboard() {
                     <span>Processing</span>
                   </>
                 ) : (
-                  <span>Restart Agent</span>
+                  <span>Review / Restart</span>
                 )}
               </button>
             </div>
