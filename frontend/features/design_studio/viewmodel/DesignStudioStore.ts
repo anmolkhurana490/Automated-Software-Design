@@ -110,7 +110,7 @@ const INITIAL_STATE: DesignAgentState = {
   },
   planning: {
     architecture: undefined,
-    techStack: undefined,
+    tech_stack: undefined,
     checkpoint_details: undefined,
     response: undefined,
     user_answered: false,
