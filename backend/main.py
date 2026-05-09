@@ -5,11 +5,16 @@ from modules.projects.routes import router as projects_router
 from config.errors import register_exception_handlers
 import uvicorn
 
+from dotenv import load_dotenv
+import os
+
 app = FastAPI()
+
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[FRONTEND_URL],
     allow_methods=["*"],
     allow_headers=["*"],
 )
