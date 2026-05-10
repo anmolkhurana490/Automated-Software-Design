@@ -4,7 +4,7 @@ from modules.studio.dao import StudioDao
 from modules.studio.models import StageUpdate
 from config.constants import MAX_SESSIONS_PER_PROJECT
 from config.errors import NotFoundException, UnprocessableEntityException
-from modules.studio.types import UserCheckpointData, ExportFormat
+from modules.studio.types import UserCheckpointData, ExportFormat, StageName
 from utils.file_utils import generate_text_file, generate_pdf_file
 from typing import AsyncGenerator
 import asyncio
@@ -41,15 +41,8 @@ class StudioService:
 		# create new studio doc in DB
 		session_id = await self.studio_dao.create_session(project_id, user_input)
 
-		# start the agent execution and stream updates to the frontend
-		stream = self.agent_runner.run(
-			session_id=session_id,
-			data={"user_input": user_input}
-		)
-		generator = self.agent_runner.stream_agent_update(stream)
-
 		# Run the agent execution in the background
-		task = asyncio.create_task(self.handle_agent_updates(project_id, session_id, generator))
+		task = asyncio.create_task(self.handle_agent_task(project_id, session_id, {"user_input": user_input}))
 
 		# Keep ensure the background task reference to prevent it from being garbage collected
 		# ensure the task doesn't get cancelled before it completes
@@ -70,17 +63,8 @@ class StudioService:
 		if not updated_session:
 			raise NotFoundException(f"Session not found")
 
-		# resume the agent execution from the checkpoint with the updated response data
-		stream = self.agent_runner.run(
-			session_id=str(session_id),
-			data=responseData.response,
-			resumeAgent=True
-		)
-
-		generator = self.agent_runner.stream_agent_update(stream)
-
 		# Run the agent execution in the background
-		task = asyncio.create_task(self.handle_agent_updates(project_id, session_id, generator))
+		task = asyncio.create_task(self.handle_agent_task(project_id, session_id, responseData.response, resumeAgent=True))
 
 		# Keep ensure the background task reference to prevent it from being garbage collected
 		# ensure the task doesn't get cancelled before it completes
@@ -94,13 +78,22 @@ class StudioService:
 	# 	pass
 
 
-	# helper method to send updates to the frontend via WebSocket and store updates in the database
-	async def handle_agent_updates(self, project_id: str, session_id: str, generator: AsyncGenerator):
-		async for update in generator:
-			# Store the update in the database
-			print(f"Received update for session {session_id}: {update}")
+	# run background task to handle the agent execution and stream updates to the frontend and DB
+	async def handle_agent_task(self, project_id: str, session_id: str, data: dict, resumeAgent: bool = False):
+		print(f"Started handling agent updates for session {session_id}")
 
-			output = update.get("data", {})
+		# start the agent execution and stream updates to the frontend
+		stream = self.agent_runner.run_and_stream(
+			session_id=session_id,
+			data=data,
+			resumeAgent=resumeAgent
+		)
+
+		async for update in stream:
+			# Store the update in the database
+			# print(f"Received update for session {session_id}: {update}")
+
+			output = update.get("data", {}) 
 			stage = update.get("stage", "").lower()
 
 			if output is None or not stage:

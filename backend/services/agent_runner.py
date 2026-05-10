@@ -11,7 +11,7 @@ class AgentRunner:
         self.agent = main_agent
 
     # To start/resume the agent execution and return stream (async agent updates generator)
-    def run(
+    async def run_and_stream(
         self,
         session_id: str,
         data: dict | None = None,
@@ -31,7 +31,8 @@ class AgentRunner:
         )
         # print(f"Agent run initiated for session_id: {session_id}, resume: {resumeAgent}")
         
-        return stream
+        async for update in self.stream_agent_update(stream):
+            yield update
     
     # To process the agent updates stream and yield structured updates for frontend and DB consumption
     async def stream_agent_update(self, stream: AsyncIterator):

@@ -24,6 +24,5 @@ main_graph.add_edge("Design", "Validation")
 main_graph.add_edge("Validation", "Output")
 main_graph.add_edge("Output", END)
 
-serializer = JsonPlusSerializer(allowed_msgpack_modules=True)
-
-main_agent = main_graph.compile(checkpointer=MemorySaver(serde=serializer))
+memory = MemorySaver(serde=JsonPlusSerializer())
+main_agent = main_graph.compile(checkpointer=memory)
