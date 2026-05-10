@@ -80,7 +80,7 @@ class StudioService:
 
 	# run background task to handle the agent execution and stream updates to the frontend and DB
 	async def handle_agent_task(self, project_id: str, session_id: str, data: dict, resumeAgent: bool = False):
-		print(f"Started handling agent updates for session {session_id}")
+		# print(f"Started handling agent updates for session {session_id}")
 
 		# start the agent execution and stream updates to the frontend
 		stream = self.agent_runner.run_and_stream(
@@ -91,13 +91,17 @@ class StudioService:
 
 		async for update in stream:
 			# Store the update in the database
-			print(f"Received update for session {session_id}: {update}")
 
+			type = update.get("type", "")
 			output = update.get("data", {}) 
 			stage = update.get("stage", "").lower()
 
+			if type is "error" or type is "end":
+				await self.ws_manager.broadcast_data(project_id, update)
+				continue
+
 			if output is None or not stage:
-				print(f"Skipping update for session {session_id} due to missing output or stage", update)
+				# print(f"Skipping update for session {session_id} due to missing output or stage", update)
 				continue
 
 			updateData = StageUpdate(
