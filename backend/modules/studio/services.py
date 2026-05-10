@@ -15,6 +15,7 @@ class StudioService:
 		self.agent_runner = AgentRunner()
 		self.ws_manager = WebSocketManager()
 		self.studio_dao = StudioDao()
+		self._background_tasks = set()
 
 
 	async def get_session_data(self, session_id: str):
@@ -48,7 +49,12 @@ class StudioService:
 		generator = self.agent_runner.stream_agent_update(stream)
 
 		# Run the agent execution in the background
-		asyncio.create_task(self.handle_agent_updates(project_id, session_id, generator))
+		task = asyncio.create_task(self.handle_agent_updates(project_id, session_id, generator))
+
+		# Keep ensure the background task reference to prevent it from being garbage collected
+		# ensure the task doesn't get cancelled before it completes
+		self._background_tasks.add(task)
+		task.add_done_callback(self._background_tasks.discard)
 
 		return session_id
 
@@ -74,8 +80,12 @@ class StudioService:
 		generator = self.agent_runner.stream_agent_update(stream)
 
 		# Run the agent execution in the background
-		asyncio.create_task(self.handle_agent_updates(project_id, session_id, generator))
+		task = asyncio.create_task(self.handle_agent_updates(project_id, session_id, generator))
 
+		# Keep ensure the background task reference to prevent it from being garbage collected
+		# ensure the task doesn't get cancelled before it completes
+		self._background_tasks.add(task)
+		task.add_done_callback(self._background_tasks.discard)
 
 	# def edit_agent(self, session_id: str, user_input: str):
 	# 	# for editing the agent's execution based on user input
@@ -88,16 +98,13 @@ class StudioService:
 	async def handle_agent_updates(self, project_id: str, session_id: str, generator: AsyncGenerator):
 		async for update in generator:
 			# Store the update in the database
-			print(f"Received update for session {session_id}: {update}")
+			# print(f"Received update for session {session_id}")
 
 			output = update.get("data", {})
 			stage = update.get("stage", "").lower()
 
 			if output is None or not stage:
-				print(f"Invalid update format for session {session_id}. Missing 'data' or 'stage'. stage: {stage}, output: {output}")
 				continue
-
-			print(f"Storing update for session {session_id} - Stage: {stage}")
 
 			updateData = StageUpdate(
 				stage=stage,
