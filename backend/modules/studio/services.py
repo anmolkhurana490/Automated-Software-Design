@@ -91,12 +91,13 @@ class StudioService:
 
 		async for update in stream:
 			# Store the update in the database
-			# print(f"Received update for session {session_id}: {update}")
+			print(f"Received update for session {session_id}: {update}")
 
 			output = update.get("data", {}) 
 			stage = update.get("stage", "").lower()
 
 			if output is None or not stage:
+				print(f"Skipping update for session {session_id} due to missing output or stage", update)
 				continue
 
 			updateData = StageUpdate(
