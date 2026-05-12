@@ -22,49 +22,90 @@ interface InputRendererProps {
 const inputBaseClasses = "w-full rounded-lg border border-slate-700 bg-slate-950/85 px-3 py-2 text-sm text-slate-100 outline-none transition-colors hover:border-cyan-400/50 disabled:cursor-not-allowed disabled:opacity-50";
 const inputFocusClasses = "focus:border-cyan-400 focus:bg-slate-950 focus:ring-1 focus:ring-cyan-400/30";
 
-// Boolean checkbox input renderer
-const BooleanInputRenderer = ({
+// Boolean radio buttons (Yes/No)
+const BooleanRadioRenderer = ({
   field,
   message,
   value,
   onChange,
   disabled,
 }: InputRendererProps) => (
-  <label className="inline-flex items-center gap-3 rounded-lg border border-slate-700/50 bg-slate-950/50 px-2 py-3 sm:px-4 sm:py-3 hover:bg-slate-900/60 transition-colors cursor-pointer group">
-    <input
-      type="checkbox"
-      checked={value === "true"}
-      onChange={(e) => onChange(e.target.checked.toString())}
-      disabled={disabled}
-      className="h-5 w-5 rounded border-slate-600 bg-slate-800 accent-cyan-400 cursor-pointer group-hover:border-cyan-400/50 disabled:cursor-not-allowed disabled:opacity-50"
-    />
-    <span className="text-sm font-medium text-slate-100">{message ?? field}</span>
-  </label>
+  <div className="space-y-2">
+    <div className="flex flex-wrap gap-3">
+      <label key={"Yes"} className="flex items-center gap-2 cursor-pointer group">
+        <input
+          type="radio"
+          name={field} value={"true"}
+          checked={value === "true"}
+          onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
+          className="h-4 w-4 border-slate-600 bg-slate-800 accent-cyan-400 cursor-pointer group-hover:border-cyan-400/50 disabled:cursor-not-allowed disabled:opacity-50"
+        />
+        <span className="text-sm font-medium text-slate-100">Yes</span>
+      </label>
+
+      <label key={"No"} className="flex items-center gap-2 cursor-pointer group">
+        <input
+          type="radio"
+          name={field} value={"false"}
+          checked={value === "false"}
+          onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
+          className="h-4 w-4 border-slate-600 bg-slate-800 accent-cyan-400 cursor-pointer group-hover:border-cyan-400/50 disabled:cursor-not-allowed disabled:opacity-50"
+        />
+        <span className="text-sm font-medium text-slate-100">No</span>
+      </label>
+    </div>
+  </div>
 );
 
-// Select dropdown with predefined options
-const SelectInputRenderer = ({
+// Radio buttons with predefined options and optional text input
+const OptionsRadioRenderer = ({
   field,
   value,
   options,
   onChange,
   disabled,
 }: InputRendererProps) => (
-  <select
-    value={String(value ?? "")}
-    onChange={(e) => onChange(e.target.value)}
-    disabled={disabled}
-    className={`${inputBaseClasses} ${inputFocusClasses} cursor-pointer`}
-  >
-    <option value="" className="bg-slate-900 text-slate-300">
-      Select an option
-    </option>
-    {options?.map((opt) => (
-      <option key={opt} value={opt} className="bg-slate-900 text-slate-100">
-        {opt}
-      </option>
-    ))}
-  </select>
+  <div className="space-y-3">
+    <div className="space-y-2">
+      {options?.map((option) => (
+        <label key={option} className="flex items-center gap-2 cursor-pointer group">
+          <input
+            type="radio"
+            name={field}
+            value={option}
+            checked={value === option}
+            onChange={(e) => onChange(e.target.value)}
+            disabled={disabled}
+            className="h-4 w-4 border-slate-600 bg-slate-800 accent-cyan-400 cursor-pointer group-hover:border-cyan-400/50 disabled:cursor-not-allowed disabled:opacity-50"
+          />
+          <span className="text-sm font-medium text-slate-100">{option}</span>
+        </label>
+      ))}
+    </div>
+    <div className="space-y-2 border-t border-amber-500/20 pt-3">
+      <label className="flex items-center gap-2 cursor-pointer group">
+        <input
+          type="radio"
+          name={`${field}-other`}
+          checked={!options?.includes(String(value ?? ""))}
+          onChange={() => onChange("")}
+          disabled={disabled}
+          className="h-4 w-4 border-slate-600 bg-slate-800 accent-cyan-400 cursor-pointer group-hover:border-cyan-400/50 disabled:cursor-not-allowed disabled:opacity-50"
+        />
+        <span className="text-sm font-medium text-slate-100">Other:</span>
+      </label>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Enter custom answer"
+        disabled={disabled}
+        className={`${inputBaseClasses} ${inputFocusClasses}`}
+      />
+    </div>
+  </div>
 );
 
 // List input (comma-separated)
@@ -125,10 +166,10 @@ export const InputOutputRenderer = ({
   const renderInput = (question: Question) => {
     const raw = inputAnswers[question.field];
 
-    // Has predefined options → Select dropdown
+    // Has predefined options → Radio buttons
     if (question.options && question.options.length > 0) {
       return (
-        <SelectInputRenderer
+        <OptionsRadioRenderer
           field={question.field}
           value={String(raw ?? "")}
           options={question.options}
@@ -138,13 +179,13 @@ export const InputOutputRenderer = ({
       );
     }
 
-    // Boolean type → Checkbox
+    // Boolean type → Radio buttons (Yes/No)
     if (question.input_type === "boolean") {
       return (
-        <BooleanInputRenderer
+        <BooleanRadioRenderer
           field={question.field}
           message={question.message}
-          value={String(raw ?? "false")}
+          value={String(raw ?? "")}
           onChange={(checked) => setInputAnswer(question.field, checked)}
           disabled={disabled}
         />

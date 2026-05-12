@@ -2,6 +2,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from pydantic import BaseModel
 from typing import List, Literal, get_args, get_origin
 import random
+import time
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -16,6 +17,7 @@ def call_llm(prompt: str):
   return response.content
 
 def call_structured_llm(StrcuturedOutputSchema: type[BaseModel], prompt: str) -> dict:
+  # time.sleep(3)  # Simulate delay for testing
   # result = generate_mock(StrcuturedOutputSchema)
   
   structured_llm = llm.with_structured_output(StrcuturedOutputSchema)

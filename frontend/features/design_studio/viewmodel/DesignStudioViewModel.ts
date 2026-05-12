@@ -200,10 +200,7 @@ export function useDesignStudioViewModel(projectId: string): DesignStudioViewMod
 
     store.updateFromEvent(event);
 
-    if (event.type !== "update") {
-      store.setGlobalState({
-        isProcessing: false,
-      });
+    if (event.type !== "update" && event.type !== "complete") {
       studioSocket.disconnect();
     }
   }, []);

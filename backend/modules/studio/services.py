@@ -100,13 +100,16 @@ class StudioService:
 				await self.ws_manager.broadcast_data(project_id, update)
 				continue
 
-			if output is None or not stage:
+			elif output is None or not isinstance(output, dict) or not stage:
 				# print(f"Skipping update for session {session_id} due to missing output or stage", update)
 				continue
 
+			elif type == "checkpoint":
+				output = {**output, "user_answered": False}
+
 			updateData = StageUpdate(
-				stage=stage,
-				status="completed" if update.get("type", "") == "complete" else "in_progress",
+				stage=stage, # type: ignore
+				status="completed" if type == "complete" else "in_progress",
 				output=output
 			)
 			await self.studio_dao.update_session(project_id, session_id, updateData)

@@ -287,7 +287,7 @@ export const useDesignStudioStore = create<DesignStudioStoreState>((set, get) =>
       }
 
       store.setGlobalState({
-        isProcessing: event.type === "update",
+        isProcessing: event.type === "update" || event.type === "complete",
         liveStage: event.stage,
         liveActivity: {
           stage: event.stage,
