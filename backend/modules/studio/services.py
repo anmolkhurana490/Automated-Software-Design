@@ -115,7 +115,7 @@ class StudioService:
 			await self.studio_dao.update_session(project_id, session_id, updateData)
 			
 			# Send the update to the frontend via WebSocket
-			await self.ws_manager.broadcast_data(project_id, update)
+			await self.ws_manager.broadcast_data(project_id, {**update, "data": output})
 			# print(f"Sent update to WebSocket for session {session_id}: {update}")
 
 
