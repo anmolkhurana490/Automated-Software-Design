@@ -31,18 +31,15 @@ function HeroSection() {
       <div className="pointer-events-none absolute inset-0" />
 
       <div className="relative z-10 px-4 py-6 md:px-6 md:py-12 sm:px-10 lg:px-12 lg:py-12">
-        <div className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-[rgba(99,102,241,0.25)] bg-[rgba(99,102,241,0.12)] px-3 py-1 font-mono text-[11px] uppercase tracking-[1.5px] text-[#a5b4fc]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#6366f1] animate-pulse" />
-          AI Agent · v2.4
-        </div>
-
         <h1 className="text-[38px] font-semibold leading-[1.15] tracking-[-0.5px] text-slate-100 sm:text-[44px]">
-          Design software <br />
-          <span className="text-[#6366f1]">autonomously</span>
+          <span className="bg-linear-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">ArchFlow</span>
         </h1>
+        <h2 className="mt-3 text-[16px] font-medium leading-[1.4] tracking-[-0.3px] text-slate-300 sm:text-[26px]">
+          Transform your software vision into reality.
+        </h2>
 
-        <p className="mt-4 text-[15px] leading-[1.7] text-slate-500">
-          From requirements to production-ready architecture — our AI agent analyzes, designs, and iterates your system in minutes.
+        <p className="mt-4 text-[15px] leading-[1.7] text-slate-400">
+          ArchFlow analyzes requirements, generates production-ready architecture, and iterates intelligently — all in minutes.
         </p>
 
         <div className="mt-8 flex flex-wrap gap-3">

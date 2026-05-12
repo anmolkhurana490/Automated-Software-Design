@@ -25,7 +25,12 @@ register_exception_handlers(app)
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to the FastAPI backend!"}
+    return {
+        "name": "ArchFlow",
+        "message": "Agentic Design Studio - Transform requirements into production-ready architecture",
+        "version": "2.4.0",
+        "status": "running"
+    }
 
 if __name__ == "__main__":
     uvicorn.run(app)

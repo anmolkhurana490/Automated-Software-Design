@@ -43,15 +43,15 @@ export function ProjectDashboard() {
 
   return (
     <main className="mx-auto w-full max-w-7xl px-3 py-8 sm:px-8 lg:px-12 lg:py-12">
-      <div className="mb-6 flex flex-wrap gap-4 items-center justify-between">
+      <div className="mb-8 flex flex-wrap gap-4 items-start justify-between">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white">Projects</h1>
-          <p className="mt-1 text-sm text-slate-400">Manage your projects — create, edit, or remove.</p>
+          <h1 className="text-4xl font-extrabold tracking-tight bg-linear-to-r from-slate-100 to-cyan-200 bg-clip-text text-transparent\">ArchFlow Projects</h1>
+          <p className="mt-2 text-sm text-slate-400\">Design, manage, and iterate your architectural projects powered by AI.</p>
         </div>
 
         <div>
           <button
-            className="inline-flex items-center gap-2 rounded bg-cyan-600 px-4 py-2 text-sm font-semibold hover:bg-cyan-500"
+            className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-cyan-500 to-emerald-500 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-cyan-500/40 hover:scale-105 active:scale-95\"
             onClick={openCreate}
           >
             <Plus size={16} /> New Project

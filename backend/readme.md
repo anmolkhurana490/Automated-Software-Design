@@ -1,6 +1,8 @@
-# Backend Setup
+# ArchFlow Backend
 
-This backend uses FastAPI.
+**Agentic Design Studio** - Automated software architecture and technology recommendation workspace
+
+This backend uses FastAPI to power the ArchFlow intelligent design system.
 
 ## Install dependencies
 

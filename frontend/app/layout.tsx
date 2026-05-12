@@ -17,7 +17,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Agentic Design Studio",
+  title: "ArchFlow - Agentic Design Studio",
   description: "Automated software architecture and technology recommendation workspace",
 };
 

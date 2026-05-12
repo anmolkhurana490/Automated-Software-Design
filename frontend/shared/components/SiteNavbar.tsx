@@ -15,13 +15,12 @@ export function SiteNavbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-slate-700/80 bg-slate-950/80 backdrop-blur-xl supports-backdrop-filter:bg-slate-950/70">
       <nav className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-8 lg:px-12">
-        <Link href="/" className="group flex min-w-0 items-center gap-3" onClick={() => setMenuOpen(false)}>
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-cyan-500 to-emerald-500 text-sm font-black text-white shadow-lg shadow-cyan-900/40 transition group-hover:rotate-6">
-            AS
-          </span>
+        <Link href="/" className="group flex min-w-0 items-center gap-2" onClick={() => setMenuOpen(false)}>
+          <img src="/archflow-logo.png" alt="ArchFlow Logo" className="h-9 rounded-full group-hover:animate-spin-slow" />
+
           <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 sm:text-xs">Advanced Agent</p>
-            <p className="truncate text-sm font-black text-slate-100 sm:text-base">Software Architect Studio</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400 sm:text-xs">ArchFlow</p>
+            <p className="truncate text-sm font-black bg-linear-to-r from-slate-100 to-cyan-200 bg-clip-text text-transparent sm:text-base">Design Studio</p>
           </div>
         </Link>
 
