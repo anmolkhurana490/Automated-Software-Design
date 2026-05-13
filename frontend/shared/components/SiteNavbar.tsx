@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import { ProfileModal } from "@/features/auth/views/components/ProfileModal";
+import { useAuthViewModel } from "@/features/auth/viewmodel/AuthViewModel";
 
 const navItems = [
   { label: "Home", href: "/" },
@@ -11,6 +13,12 @@ const navItems = [
 
 export function SiteNavbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const { user, fetchSession } = useAuthViewModel();
+
+  useEffect(() => {
+    fetchSession();
+  }, [fetchSession]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-700/80 bg-slate-950/80 backdrop-blur-xl supports-backdrop-filter:bg-slate-950/70">
@@ -45,6 +53,42 @@ export function SiteNavbar() {
               </Link>
             </li>
           ))}
+
+          {/* Auth Section */}
+          {user ? (
+            <li className="relative ml-4 pl-4 border-l border-slate-700">
+              <button
+                onClick={() => setProfileOpen(true)}
+                className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-slate-800/50 transition"
+              >
+                <img
+                  src={user.image || "/default-user.png"}
+                  alt={user.name}
+                  className="w-8 h-8 rounded-full border border-cyan-400/50"
+                />
+                <span className="text-xs font-semibold text-slate-200 hidden lg:inline">{user.name}</span>
+              </button>
+            </li>
+          ) : (
+            <>
+              <li>
+                <Link
+                  href="/auth/login"
+                  className="rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-300 transition hover:bg-cyan-500/20 hover:text-cyan-200"
+                >
+                  Sign In
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/auth/signup"
+                  className="rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] bg-cyan-500 text-white transition hover:bg-cyan-600"
+                >
+                  Sign Up
+                </Link>
+              </li>
+            </>
+          )}
         </ul>
       </nav>
 
@@ -63,8 +107,56 @@ export function SiteNavbar() {
                 </Link>
               </li>
             ))}
+
+            {/* Mobile Auth */}
+            <li className="border-t border-slate-700 pt-2 mt-2">
+              {user ? (
+                <button
+                  onClick={() => {
+                    setProfileOpen(true);
+                    setMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-3 rounded-xl border border-slate-700 px-4 py-3 text-sm font-semibold text-slate-200 transition hover:border-cyan-400 hover:text-cyan-200"
+                >
+                  <img
+                    src={user.image || "/default-user.png"}
+                    alt={user.name}
+                    className="w-8 h-8 rounded-full border border-cyan-400/50"
+                  />
+                  <div className="flex-1 text-left">
+                    <p className="text-xs text-slate-400">Welcome</p>
+                    <p className="font-semibold">{user.name}</p>
+                  </div>
+                </button>
+              ) : (
+                <div className="flex gap-2">
+                  <Link
+                    href="/auth/login"
+                    className="flex-1 rounded-xl border border-slate-700 px-4 py-3 text-center text-sm font-semibold text-slate-200 transition hover:border-cyan-400 hover:text-cyan-200"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/auth/signup"
+                    className="flex-1 rounded-xl bg-cyan-500 px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-cyan-600"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
+            </li>
           </ul>
         </div>
+      )}
+
+      {/* Profile Modal */}
+      {user && (
+        <ProfileModal
+          isOpen={profileOpen}
+          onClose={() => setProfileOpen(false)}
+        />
       )}
     </header>
   );

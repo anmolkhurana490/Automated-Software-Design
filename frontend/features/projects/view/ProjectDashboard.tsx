@@ -7,13 +7,25 @@ import ProjectModal from "./components/ProjectModal";
 import { Project, ProjectModalPayload } from "../model/types";
 import { Plus } from "lucide-react";
 import Spinner from "@/shared/components/Spinner";
+import { useAuthStore } from "@/features/auth/viewmodel/authStore";
+import { useRouter } from "next/navigation";
 
 export function ProjectDashboard() {
+  const router = useRouter();
   const { projects, loading, create, update, remove } = useProjectViewModel();
 
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [modalInitial, setModalInitial] = useState<ProjectModalPayload | null>(null);
+
+  // const { authenticated } = useAuthStore((state) => ({
+  //   authenticated: state.authenticated
+  // }));
+
+  // if (!authenticated) {
+  //   router.push("/auth/login");
+  //   return null;
+  // }
 
   const openCreate = () => {
     setEditingId(null);

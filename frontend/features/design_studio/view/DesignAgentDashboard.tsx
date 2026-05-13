@@ -12,9 +12,10 @@ import { PlanningStagePanel } from "./components/stages/PlanningStagePanel";
 import { DesignStagePanel } from "./components/stages/DesignStagePanel";
 import { ValidationStagePanel } from "./components/stages/ValidationStagePanel";
 import { FinalOutputStagePanel } from "./components/stages/FinalOutputStagePanel";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Spinner from "@/shared/components/Spinner";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useAuthStore } from "@/features/auth/viewmodel/authStore";
 
 const stageOrder: ProcessingStage[] = ["elicitation", "planning", "design", "validation", "output"];
 
@@ -28,6 +29,8 @@ function getStageIndex(stage: ProcessingStage | null) {
 }
 
 export function DesignAgentDashboard() {
+  const router = useRouter();
+
   const params = useParams();
   const projectId = params.id as string;
 
@@ -40,6 +43,15 @@ export function DesignAgentDashboard() {
       projectData: state.projectData,
     })),
   );
+
+  const { authenticated } = useAuthStore((state) => ({
+    authenticated: state.authenticated,
+  }));
+
+  if (!authenticated) {
+    router.push("/auth/login");
+    return null;
+  }
 
   const {
     initializeProject,

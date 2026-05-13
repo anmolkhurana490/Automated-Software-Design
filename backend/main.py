@@ -1,12 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+import uvicorn
+import os
+
+from config.errors import register_exception_handlers
+from modules.auth.routes import router as auth_router
 from modules.studio.routes import router as studio_router
 from modules.projects.routes import router as projects_router
-from config.errors import register_exception_handlers
-import uvicorn
 
-from dotenv import load_dotenv
-import os
+load_dotenv()
 
 app = FastAPI()
 
@@ -19,6 +22,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth_router, prefix="/auth")
 app.include_router(projects_router, prefix="/projects")
 app.include_router(studio_router, prefix="/studio")
 register_exception_handlers(app)

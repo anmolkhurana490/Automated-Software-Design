@@ -1,14 +1,20 @@
 import axios from "axios";
+import { getSession } from "next-auth/react";
 
 const BASE = process.env.NEXT_PUBLIC_API_BASE || "localhost:8000";
 
 const client = axios.create({ baseURL: BASE });
 
 // Request interceptor: attach auth token if present
-client.interceptors.request.use((config) => {
+client.interceptors.request.use(async (config) => {
   try {
+    const session = await getSession();
+    const sessionUser = session?.user as any;
+    const token = sessionUser?.accessToken || sessionUser.user?.accessToken as string | undefined;
     // const token = localStorage.getItem("token");
-    // if (token) config.headers = { ...(config.headers || {}), Authorization: `Bearer ${token}` };
+    // console.log("Attaching session token to request:", token);
+
+    if (token) config.headers.set({ ...(config.headers || {}), Authorization: `Bearer ${token}` });
   } catch (e) {
     // ignore
   }
@@ -22,7 +28,7 @@ client.interceptors.response.use(
     // normalize axios error to throw useful message
     if (err.response) {
       const payload = err.response.data;
-      const message = JSON.stringify(payload) || err.message;
+      const message = payload.message || err.message;
       const e = new Error(message);
       // @ts-ignore
       e.status = err.response.status;
