@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuthViewModel } from "../viewmodel/AuthViewModel";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "../../../shared/stores/AuthStore";
 
 export function LoginPage() {
   const router = useRouter();
