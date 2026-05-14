@@ -43,7 +43,7 @@ class StudioWebSocket {
   onClose?: () => void;
 
   connect(projectId: string): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       const url = `${baseWsUrl}/studio/ws/${projectId}`;
 
       const handlers = {
@@ -56,7 +56,7 @@ class StudioWebSocket {
       };
 
       try {
-        this.native.connect(url, handlers);
+        await this.native.connect(url, handlers);
       } catch (err) {
         reject(err);
       }

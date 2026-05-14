@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getSession } from "next-auth/react";
+import { getAuthToken } from "./authSession";
 
 const BASE = process.env.NEXT_PUBLIC_API_BASE || "localhost:8000";
 
@@ -8,11 +8,8 @@ const client = axios.create({ baseURL: BASE });
 // Request interceptor: attach auth token if present
 client.interceptors.request.use(async (config) => {
   try {
-    const session = await getSession();
-    const sessionUser = session?.user as any;
-    const token = sessionUser?.accessToken || sessionUser.user?.accessToken as string | undefined;
+    const token = await getAuthToken();
     // const token = localStorage.getItem("token");
-    // console.log("Attaching session token to request:", token);
 
     if (token) config.headers.set({ ...(config.headers || {}), Authorization: `Bearer ${token}` });
   } catch (e) {

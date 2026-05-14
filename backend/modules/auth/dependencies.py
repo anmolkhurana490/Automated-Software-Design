@@ -19,3 +19,13 @@ async def get_current_user(
 
 def get_current_user_id(current_user: AuthUser = Depends(get_current_user)) -> str:
   return current_user.id
+
+
+async def get_current_user_ws(token: str | None = None) -> AuthUser:
+  if not token:
+    raise UnauthorizedException("Authentication token is required")
+
+  return await auth_service.get_current_user(token)
+
+def get_current_user_id_ws(current_user: AuthUser = Depends(get_current_user_ws)) -> str:
+  return current_user.id

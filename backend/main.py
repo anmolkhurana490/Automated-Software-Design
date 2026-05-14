@@ -6,7 +6,7 @@ import os
 
 from config.errors import register_exception_handlers
 from modules.auth.routes import router as auth_router
-from modules.studio.routes import router as studio_router
+from modules.studio.routes import router as studio_router, ws_router as studio_ws_router
 from modules.projects.routes import router as projects_router
 
 load_dotenv()
@@ -25,6 +25,7 @@ app.add_middleware(
 app.include_router(auth_router, prefix="/auth")
 app.include_router(projects_router, prefix="/projects")
 app.include_router(studio_router, prefix="/studio")
+app.include_router(studio_ws_router, prefix="/studio")
 register_exception_handlers(app)
 
 @app.get("/")

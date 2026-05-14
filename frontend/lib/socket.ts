@@ -1,3 +1,5 @@
+import { getAuthToken } from "../lib/authSession";
+
 type SocketEventType = {
   onEvent?: (ev: Object) => void;
   onOpen?: () => void;
@@ -13,13 +15,15 @@ export class NativeSocket {
   private onOpen?: () => void;
   private onClose?: () => void;
 
-  connect(url: string, handlers: SocketEventType) {
+  async connect(url: string, handlers: SocketEventType) {
     this.disconnect();
     this.onEvent = handlers.onEvent;
     this.onOpen = handlers.onOpen;
     this.onClose = handlers.onClose;
 
-    this.ws = new WebSocket(url);
+    const token = await getAuthToken();
+    
+    this.ws = new WebSocket(`${url}?token=${token}`);
     this.ws.onopen = () => this.onOpen?.();
     this.ws.onclose = () => this.onClose?.();
 

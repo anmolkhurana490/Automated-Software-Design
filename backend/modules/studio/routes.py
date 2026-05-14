@@ -1,7 +1,7 @@
 from fastapi import APIRouter, WebSocket, Depends
 from fastapi.responses import StreamingResponse
 from modules.studio.types import AgentStartData, UserCheckpointData, ExportFormat
-from modules.projects.dependencies import validate_project
+from modules.projects.dependencies import validate_project, validate_project_ws
 from modules.studio.services import StudioService
 from modules.projects.models import ProjectOutput
 
@@ -62,7 +62,12 @@ async def export_report(project_id: str, session_id: str, format: ExportFormat):
     headers={"Content-Disposition": f"attachment; filename={filename}"}
   )
 
+
+ws_router = APIRouter(
+  dependencies=[Depends(validate_project_ws)]
+)
+
 # Websocket endpoint to stream real-time updates of the agent execution for a given project ID
-@router.websocket("/ws/{project_id}")
+@ws_router.websocket("/ws/{project_id}")
 async def websocket_studio(websocket: WebSocket, project_id: str):
   await studio_service.connect_websocket(websocket, project_id)
